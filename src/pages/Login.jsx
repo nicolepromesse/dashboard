@@ -9,9 +9,41 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const validateEmail = (email) => {
+    return /\S+@\S+\.\S+/.test(email); // Simple email validation regex
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    if (!email || !password) {
+      setError("Please fill in both fields.");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError("Invalid email format.");
+      return;
+    }
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      const mockEmail = "christine@horizonhearts.rw";
+      const mockPassword = "Passion@2023";
+
+      if (email !== mockEmail || password !== mockPassword) {
+        setError("Incorrect email or password.");
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(false);
+      console.log("Login successful!");
+    }, 2000); // Simulate 2-second loading delay
+  
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/dashboard"); // Redirect after login
@@ -38,6 +70,7 @@ const Login = () => {
         <form onSubmit={handleLogin} className="w-full">
           {/* Email Input */}
           <div className="w-full mb-4">
+          {error && <p className="text-red-500 mb-2">{error}</p>}
             <label className="block text-gray-700 mb-1">Email address</label>
             <input
               type="email"
@@ -69,11 +102,16 @@ const Login = () => {
 
           {/* Submit Button */}
           <button
-            type="submit"
-            className="bg-green-900 text-white px-4 py-2 rounded-xl w-full hover:bg-green-800 transition"
-          >
-            Sign in
-          </button>
+          type="submit"
+          disabled={!email || !password || isLoading}
+          className={`w-full p-2 text-white rounded ${
+            !email || !password || isLoading
+              ? "bg-green-900 cursor-not-allowed"
+              : "bg-gray-400 hover:bg-green-900"
+          }`}
+        >
+          {isLoading ? "Logging in..." : "Login"}
+        </button>
         </form>
       </div>
 
